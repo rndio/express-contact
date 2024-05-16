@@ -55,6 +55,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            docker pull rndio/express-contact:latest
             docker stop express-contact-testing || true && docker rm express-contact-testing || true
             docker stop express-contact || true && docker rm express-contact || true
             docker run -d --name express-contact --network host -p 5000:5000 rndio/express-contact:latest

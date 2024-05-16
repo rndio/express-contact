@@ -1,5 +1,5 @@
 # Gunakan node image sebagai base image
-FROM node:20-alpine AS build-stage
+FROM node:20-alpine
 
 # Set working directory di dalam container
 WORKDIR /usr/app
@@ -17,7 +17,7 @@ COPY package*.json ./
 RUN pnpm install
 
 # Expose port yang digunakan oleh aplikasi
-EXPOSE 3000
+EXPOSE 5000
 
 # Command untuk menjalankan aplikasi ketika container dijalankan
 CMD ["npm", "start"]
