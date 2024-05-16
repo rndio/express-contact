@@ -36,11 +36,11 @@ jobs:
             docker pull rndio/express-contact:latest
             docker run -d --name express-contact-testing -p 5000:5000 rndio/express-contact:latest
             mkdir -p /home/app/express-contact
-            touch .env && echo "DATABASE_URL=\"mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}_test\"" > .env
+            touch /home/app/express-contact/.env && echo "DATABASE_URL=\"mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}_test\"" > /home/app/express-contact/.env
             docker cp /home/app/express-contact/.env express-contact-testing:/usr/app/.env
             rm /home/app/express-contact/.env
             docker restart express-contact-testing
-            sleep 10
+            sleep 5
             docker exec express-contact-testing npm run test
   deploy-to-production:
     name: Deploy To Production
@@ -57,7 +57,7 @@ jobs:
             docker container stop express-contact-testing || true && docker container rm express-contact-testing || true
             docker container stop express-contact || true && docker container rm express-contact || true
             docker run -d --name express-contact -p 5000:5000 rndio/express-contact:latest
-            touch .env && echo "DATABASE_URL=\"mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}\"" > .env
+            touch /home/app/express-contact/.env && echo "DATABASE_URL=\"mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}\"" > /home/app/express-contact/.env
             docker cp /home/app/express-contact/.env express-contact:/usr/app/.env && rm /home/app/express-contact/.env
             docker restart express-contact
   
