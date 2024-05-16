@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - main
-
 name: Auto Deploy Docker
 jobs:
   build-image:
@@ -14,13 +13,12 @@ jobs:
       - name: Build Image
         run: docker build -t rndio/express-contact:latest .
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3.1.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Push Image
+      - name: Push Image to DockerHub
         run: docker push rndio/express-contact:latest
-
   deploy-to-server:
     name: Deploy To Server
     runs-on: ubuntu-latest
