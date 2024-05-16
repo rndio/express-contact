@@ -32,13 +32,14 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker container stop express-contact-testing || true && docker container rm express-contact-testing || true
+            docker container stop express-contact-testing || true
+            docker container rm express-contact-testing || true
             docker pull rndio/express-contact:latest
             mkdir -p /home/app/express-contact
             touch /home/app/express-contact/.env && echo "DATABASE_URL=mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}_test" > /home/app/express-contact/.env
             docker run -d --name express-contact-testing --env-file /home/app/express-contact/.env -p 5000:5000 rndio/express-contact:latest
             rm /home/app/express-contact/.env
-            docker exec express-contact-testing npm test
+            docker exec express-contact-testing npm run test
   deploy-to-production:
     name: Deploy To Production
     runs-on: ubuntu-latest
