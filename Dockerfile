@@ -1,15 +1,20 @@
 # Gunakan node image sebagai base image
-FROM node:14
+FROM node:20-alpine AS build-stage
 
 # Set working directory di dalam container
-WORKDIR /usr/src/app
-
-# Install dependencies
-COPY package*.json ./
-RUN npm install
+WORKDIR /usr/app
 
 # Bundle app source
 COPY . .
+
+# Instal pnpm
+RUN npm install -g pnpm
+
+# Install dependencies
+COPY package*.json ./
+
+# Install dependencies menggunakan pnpm
+RUN pnpm install
 
 # Expose port yang digunakan oleh aplikasi
 EXPOSE 3000

@@ -11,7 +11,7 @@ describe('POST /api/users', function(){
 
   it('should can register new user', async () => {
     const result = await supertest(web)
-    .post('/api/users')
+    .post('/api/users/')
     .send({
       username: 'testUsername',
       password: 'testPassword',
@@ -152,7 +152,7 @@ describe('PATCH /api/users/current', function(){
 
   it('should can update user', async () => {
     const result = await supertest(web)
-        .patch('/api/users/current')
+        .patch('/api/users/current/')
         .set('Authorization', 'testToken')
         .send({
           name: "Asep",
@@ -182,10 +182,10 @@ describe('PATCH /api/users/current', function(){
 
   it('should can update passoword', async () => {
     const result = await supertest(web)
-        .patch('/api/users/current')
+        .patch('/api/users/current/')
         .set('Authorization', 'testToken')
         .send({
-          password: 'asep.gntg.s'
+          password: "asep.gntg.s"
         });
 
     expect(result.status).toBe(200);
