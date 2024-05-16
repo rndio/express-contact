@@ -20,31 +20,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Push Image to DockerHub
         run: docker push rndio/express-contact:latest
-  # unit-testing:
-  #   name: Unit Testing
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Configure SSH
-  #       uses: appleboy/ssh-action@v1.0.3
-  #       with:
-  #         host: ${{ secrets.SSH_HOST }}
-  #         username: ${{ secrets.SSH_USER }}
-  #         key: ${{ secrets.SSH_KEY }}
-  #         script: |
-  #           docker stop express-contact-testing || true && docker rm express-contact-testing || true
-  #           docker pull rndio/express-contact:latest
-  #           docker run -d --name express-contact-testing --network host -p 5000:5000 rndio/express-contact:latest
-  #           mkdir -p /home/app/express-contact
-  #           cd /home/app/express-contact
-  #           touch .env && \
-  #           echo "DATABASE_URL=\"mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}\"" > .env
-  #           docker cp .env express-contact-testing:/usr/app/
-  #           rm .env
-  #           docker restart express-contact-testing
-  #           sleep 10
-  #           docker exec express-contact-testing npm run test
-  deploy-to-production:
-    name: Deploy To Production
+  unit-testing:
+    name: Unit Testing
     runs-on: ubuntu-latest
     needs: build-image
     steps:
@@ -55,12 +32,32 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            docker container stop express-contact-testing || true && docker container rm express-contact-testing || true
             docker pull rndio/express-contact:latest
-            docker stop express-contact-testing || true && docker rm express-contact-testing || true
-            docker stop express-contact || true && docker rm express-contact || true
-            docker run -d --name express-contact --network host -p 5000:5000 rndio/express-contact:latest
-            touch .env && \
-            echo "DATABASE_URL=\"mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}\"" > .env
-            docker cp .env express-contact:/usr/app/ && rm .env
+            docker run -d --name express-contact-testing -p 5000:5000 rndio/express-contact:latest
+            mkdir -p /home/app/express-contact
+            touch .env && echo "DATABASE_URL=\"mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}_test\"" > .env
+            docker cp /home/app/express-contact/.env express-contact-testing:/usr/app/.env
+            rm /home/app/express-contact/.env
+            docker restart express-contact-testing
+            sleep 10
+            docker exec express-contact-testing npm run test
+  deploy-to-production:
+    name: Deploy To Production
+    runs-on: ubuntu-latest
+    needs: unit-testing
+    steps:
+      - name: Configure SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            docker container stop express-contact-testing || true && docker container rm express-contact-testing || true
+            docker container stop express-contact || true && docker container rm express-contact || true
+            docker run -d --name express-contact -p 5000:5000 rndio/express-contact:latest
+            touch .env && echo "DATABASE_URL=\"mysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}\"" > .env
+            docker cp /home/app/express-contact/.env express-contact:/usr/app/.env && rm /home/app/express-contact/.env
             docker restart express-contact
   
