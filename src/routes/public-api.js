@@ -5,7 +5,7 @@ import contactController from '../controller/contact-controller.js';
 
 const publicRouter = new express.Router();
 publicRouter.get('/', (req, res) => {
-  res.send('Hello World');
+  res.send('Hello From Team 3');
 });
 
 publicRouter.post('/api/users', userController.register);
